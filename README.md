@@ -1,2 +1,2 @@
 # CLBP_tEFAM
-Matlab implementation of IA discrimination of Scleractinian coral species
+Matlab/Octave implementation of IA discrimination of Scleractinian coral species
