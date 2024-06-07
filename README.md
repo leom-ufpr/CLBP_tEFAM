@@ -20,7 +20,7 @@ Load io package
 pkg load io
 ```
 
-Define the source path as **your** cloned `src` folder. Make sure it ends with forward slash `/` if using either *nix/MacOS or backslash `\` if using Windows:
+Define the source path as **your** cloned `src` folder. Make sure it ends with forward slash `/` if using *nix/MacOS or backslash `\` if using Windows:
 ```
 srcPath = '~/CLBP_tEFAM/';
 addpath([srcPath, 'src/']);
