@@ -90,7 +90,7 @@ You may now use `load` to restore `featureMatrix` from the file, if you need to:
 load([outPath 'featureMatrixTest.m']);
 ```
 
-You may also export descriptors as a CSV file. The `group` column in the resulting CSV file numerically codes the taxa.
+You may also export descriptors as a CSV file. The `group` column in the resulting CSV file numerically codes the taxa:
 ```
 exportTDCSV(metaData, featureMatrix, outPath, 'featureMatrixTest.csv');
 ```
