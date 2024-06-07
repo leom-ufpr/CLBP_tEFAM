@@ -1,12 +1,12 @@
 # CLBP_tEFAM
 Matlab/Octave implementation of IA discrimination of Scleractinian coral species from Scanning Electronic Microscopy (SEM) images.
 
-Download repository into a suitable folder (this README assumes that you have cloned it into your Linux home folder):
+Download repository into a suitable folder. This example assumes that you have cloned it into your *nix/MacOS home folder, whose alias is `~`:
 ```
 git clone https://github.com/leom-ufpr/CLBP_tEFAM
 ```
 
-Scripts run in Matlab/GNU Octave. Matlab is paid software, Octave is freely distributed. Octave installation packages and intructions are in https://octave.org/download and https://wiki.octave.org/Category:Installation.
+Scripts run in Matlab/GNU Octave. Matlab is paid software, Octave is freely distributed. Octave installation packages and instructions are in https://octave.org/download and https://wiki.octave.org/Category:Installation.
 
 Once installed, open Matlab/Octave console and install dependencies (needs to be done only **once** after installation):
 ```
@@ -15,99 +15,112 @@ pkg install -forge io
 pkg install -forge statistics
 ```
 
-Define the source path as **your** cloned `src` folder. Make sure it ends with forward slash `/` for either *nix OS or Mac OS X or backslash `\` for Windows:
+Load io package
 ```
-srcPath = '~/CLBP_tEFAM/src/'
+pkg load io
 ```
 
-Define the image path as **your** `image` folder. Make sure it ends with forward slash `/` for either *nix OS or Mac OS X or backslash `\` for Windows. The images supplied in the repository correspond to SEMs of *Siderastrea* spp. coralla and should be used to make sure you will be able to run the scripts in your system. The full set of images used in the original publication is available from http://morphobank.org/permalink/?P5258:
+Define the source path as **your** cloned `src` folder. Make sure it ends with forward slash `/` if using either *nix/MacOS or backslash `\` if using Windows:
 ```
-imgPath = '~/CLBP_tEFAM/images/'
+srcPath = '~/CLBP_tEFAM/';
+addpath([srcPath, 'src/']);
+```
+
+Define the image path as **your** `images` folder. The test images supplied in this repository are intended to ensure that the scripts will run in your system. If you would like toreproduce the results in the original publication, download them from http://morphobank.org/permalink/?P5258:
+```
+imgPath = '~/CLBP_tEFAM/images/';
 ```
 
 **IMPORTANT!**
-Image files must be in *TIFF* format and must be named as `CLA1_001_1_1` where:
+Image files must be in *TIFF* format and must be named as e.g. `CLA1_001_1_1` where:
 
 - CLA1 -> image class, must *always* have 4 alphanumeric characters;
-- 001 -> voucher identifier; must *always* have 3 digits, pad with zeroes as needed if identifier is numeric;
+- 001 -> voucher identifier; must *always* have 3 digits: pad with zeroes as needed if identifier is numeric;
 - 1 -> image scale; one digit at most;
 - 1 -> replicate; one digit at most;
 
-Define output path; make sure it ends with forward slash (`/` for either *nix or Mac OS X) or backslash (`\` for Windows ):
+Define output path as **your** output folder:
 ```
-outPath = '~/CLBP_tEFAM/mat/'
+outPath = '~/CLBP_tEFAM/mat/';
 ```
-Get metadata needed to to compute the feature matrix; The function returns two variables:
+Get metadata needed to to compute the feature matrix. The function will return two variables:
 
 `metaData` = struct matrix with meta data collected from file names
 
 `noClasses` = number of data classes (=taxa) from file list
 ```
-[metaData, noClasses] = parseMetadata(imgPath)
+[metaData, noClasses] = parseMetadata(imgPath);
 ```
 
 Backup the metadata just in case. Change the file name (quoted string within brackets) if needed:
 ```
-save ([outPath 'metaDataSid.m'], "metaData")
+save ([outPath 'metaDataTest.m'], "metaData");
 ```
 
-You may use `load` to restore `metaData` as needed:
+You may then use `load` to restore `metaData`:
 ```
-load ([outPath 'metaDataSid.m'])
+load ([outPath 'metaDataTest.m']);
 ```
 
 ## TEXTURE DESCRIPTORS
 **Change the parameters below only if you know what you are doing!**  
-Set default maximum radius for *Minkowisk 3D* (ignore this line if using an algorithm other than `mink` - default is `lbp`):
+Set default maximum radius for *Minkowisk 3D*:
 ```
-max = 9
-```
-
-Set default parameters for the `lpb` or `lbpSMC` algorithms
-```
-radius = 3
-neighbors = 24
+rmax = 9;
 ```
 
-Call script that computes texture descriptors with default parameters and method `lbp` (*Complete Local Binary Pattern*). Other options are `lbpSMC` (*Sample Multiscale Local Binary Pattern*), `mink` (*Minkowski 3D*) or `boxCounting` (*Fractal Dimensions*) . The function stores the image descriptors in `featureMatrix`:
+Set default parameters for the `lpb` or `lbpSMC` algorithms:
 ```
-[featureMatrix] = computeBPDescriptorsMSB(metaData, srcPath, imgPath, 'lbp', rmax, radius, neighbors)
-```
-
-Backup descriptor data just in case:
-```
-save([outPath 'featureMatrixSid.m'], "featureMatrix")
+radius = 3;
+neighbors = 24;
 ```
 
-You may use `load` to restore `featureMatrix` from the file:
+Call script that computes texture descriptors (TD) using  either `lbp` (*Local Binary Pattern*), `lbpSMC` (*Complete Local Binary Pattern*), `mink` (*Minkowski 3D*) or `boxCounting` (*Fractal Dimensions*) . The function stores the image descriptors in `featureMatrix`:
 ```
-load ([outPath 'featureMatrixSid.m'])
+[featureMatrix] = computeBPDescriptorsMSB(metaData, srcPath, imgPath, 'lbpSMC', rmax, radius, neighbors);
+```
+
+Backup descriptors data:
+```
+save([outPath 'featureMatrixTest.m'], "featureMatrix");
+```
+
+You may now use `load` to restore `featureMatrix` from the file, if you need to:
+```
+load([outPath 'featureMatrixTest.m']);
 ```
 
 You may also export descriptors as a CSV file:
 ```
-csvwrite([outPath 'clbpSid.csv'], [featureMatrix' metaDataSid'])
+exportTDCSV(metaData, featureMatrix, outPath, 'featureMatrixTest.csv');
 ```
+The `group` column in the resulting CSV file numerically codes the taxa.
 
 ## NEURAL NETWORK - tEFAM
 **Change the parameters below only if you know what you are doing!**  
-Set default number of principal components as `noPrinComp`, cross-validation experiments as `noExp` and k-fold sets as `kfold` :
+Set number of principal components as `noPrinComp`, cross-validation experiments as `noExp` and k-fold sets as `kfold`:
 ```
-noPrinComp = 35
-noExp = 100
-kfold = 5
+noPrinComp = 35;
+noExp = 100;
+kfold = 5;
 ```
 
 Get tEFAM results with default parameters: 
 ```
-[tEFAMResults, tEFAMError] = runtEFAM(srcPath, metaData, noClasses, featureMatrix, noPrinComp, noExp, kfold)
+[tEFAMResults, tEFAMError] = runtEFAM(srcPath, metaData, noClasses, featureMatrix, noPrinComp, noExp, kfold);
 ```
 
 Backup your results in Matlab 7 binary format:
 ```
-save('-7', [outPath 'tEFAMResultsSid.m'], "tEFAMResults")
-save('-7', [outPath 'tEFAMErrorSid.m'], "tEFAMError")
+save('-7', [outPath 'tEFAMResultsTest.m'], "tEFAMResults");
+save('-7', [outPath 'tEFAMErrorTest.m'], "tEFAMError");
 ```
+
+And you may export tEFAMResults as CSV:
+```
+exporttEFAMCSV( tEFAMResults, outPath, 'tEFAMResults.csv' )
+```
+The `group_*` columns correspond to the individual pertinence to each possible class (=taxon).
 
 Output mean and standard deviation of classification error:
 ```
