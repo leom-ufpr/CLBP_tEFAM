@@ -26,7 +26,7 @@ srcPath = '~/CLBP_tEFAM/';
 addpath([srcPath, 'src/']);
 ```
 
-Define the image path as **your** `images` folder. The test images supplied in this repository are intended to ensure that the scripts will run in your system. If you would like toreproduce the results in the original publication, download them from http://morphobank.org/permalink/?P5258:
+Define the image path as **your** `images` folder. The test images supplied in this repository are intended to ensure that the scripts will run in your system. If you would like to reproduce the results in the original publication, download them from http://morphobank.org/permalink/?P5258:
 ```
 imgPath = '~/CLBP_tEFAM/images/';
 ```
@@ -80,7 +80,7 @@ Call script that computes texture descriptors (TD) using  either `lbp` (*Local B
 [featureMatrix] = computeBPDescriptorsMSB(metaData, srcPath, imgPath, 'lbpSMC', rmax, radius, neighbors);
 ```
 
-Backup descriptors data:
+Backup TD data:
 ```
 save([outPath 'featureMatrixTest.m'], "featureMatrix");
 ```
@@ -90,11 +90,10 @@ You may now use `load` to restore `featureMatrix` from the file, if you need to:
 load([outPath 'featureMatrixTest.m']);
 ```
 
-You may also export descriptors as a CSV file:
+You may also export descriptors as a CSV file. The `group` column in the resulting CSV file numerically codes the taxa.
 ```
 exportTDCSV(metaData, featureMatrix, outPath, 'featureMatrixTest.csv');
 ```
-The `group` column in the resulting CSV file numerically codes the taxa.
 
 ## NEURAL NETWORK - tEFAM
 **Change the parameters below only if you know what you are doing!**  
@@ -116,11 +115,10 @@ save('-7', [outPath 'tEFAMResultsTest.m'], "tEFAMResults");
 save('-7', [outPath 'tEFAMErrorTest.m'], "tEFAMError");
 ```
 
-And you may export tEFAMResults as CSV:
+You may also export tEFAMResults as CSV. The `group_*` columns correspond to the individual pertinence to each possible class (=taxon):
 ```
 exporttEFAMCSV( tEFAMResults, outPath, 'tEFAMResults.csv' )
 ```
-The `group_*` columns correspond to the individual pertinence to each possible class (=taxon).
 
 Output mean and standard deviation of classification error:
 ```
